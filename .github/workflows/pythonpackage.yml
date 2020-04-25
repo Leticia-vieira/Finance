@@ -1,40 +1,27 @@
-# This workflow will install Python dependencies, run tests and lint with a variety of Python versions
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+##  Estudo de analise financeira de ações
 
-name: Python package
+import numpy as np
+import pandas as pd 
+from pandas_datareader import data as wb
+import matplotlib.pyplot as plt
 
-on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+tickers = ['PETR3.SA', 'MGLU3.SA', 'PRIO3.SA', 'ITUB3.SA']
+mydata = pd.DataFrame()
+for t in tickers:
+	mydata[t] = wb.DataReader(t, data_source = 'yahoo', start = '2015-1-1')['Adj Close']
 
-jobs:
-  build:
+# Normalizando na base 100
 
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.5, 3.6, 3.7, 3.8]
+(mydata / mydata.iloc[0] * 100).plot(figsize = (15,6))
 
-    steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v1
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-    - name: Lint with flake8
-      run: |
-        pip install flake8
-        # stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    - name: Test with pytest
-      run: |
-        pip install pytest
-        pytest
+mydata.plot(figsize=(15,6))
+plt.show()
+
+#### CALCULANDO O RETORNO DO PORTIFOLIO
+
+returns = (mydata / mydata.shift(1))
+
+pesos = np.array([0.25,0.25,0.25,0.25])
+
+np.dot(returns, pesos)
+annual_returns = returns.mean() * 250
