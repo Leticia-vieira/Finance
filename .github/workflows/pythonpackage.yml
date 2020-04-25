@@ -7,8 +7,7 @@ import matplotlib.pyplot as plt
 
 tickers = ['PETR3.SA', 'MGLU3.SA', 'PRIO3.SA', 'ITUB3.SA']
 mydata = pd.DataFrame()
-for t in tickers:
-	mydata[t] = wb.DataReader(t, data_source = 'yahoo', start = '2015-1-1')['Adj Close']
+mydata[tickers] = wb.DataReader(tickers, data_source = 'yahoo', start = '2015-1-1')['Adj Close']
 
 # Normalizando na base 100
 
