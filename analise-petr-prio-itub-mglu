@@ -1,0 +1,66 @@
+##  Estudo de analise financeira de ações
+
+import numpy as np
+import pandas as pd 
+from pandas_datareader import data as wb
+import matplotlib.pyplot as plt
+
+tickers = ['PETR3.SA', 'MGLU3.SA', 'PRIO3.SA', 'ITUB3.SA']
+mydata = pd.DataFrame()
+for t in tickers:
+	mydata[t] = wb.DataReader(t, data_source = 'yahoo', start = '2015-1-1')['Adj Close']
+
+# Normalizando na base 100
+
+(mydata / mydata.iloc[0] * 100).plot(figsize = (15,6))
+
+mydata.plot(figsize=(15,6))
+plt.show()
+
+#### CALCULANDO O RETORNO DO PORTIFOLIO
+
+returns = (mydata / mydata.shift(1))
+
+pesos = np.array([0.25,0.25,0.25,0.25])
+
+np.dot(returns, pesos)
+annual_returns = returns.mean() * 250
+
+#### Calculando Risco de Portifolio
+
+pesos = np.array([0.5,0.5])
+
+#Variancia do portifolio
+
+pfolio_var = np.dot(pesos.T, np.dot(sec_returns.cov()*250, pesos))
+pfolio_var
+
+#Volatildidade do portifolio
+
+pfolio_vol = (np.dot(pesos.T, np.dot(sec_returns.cov()*250, pesos))) **0.5
+pfolio_vol
+
+print (str(round(pfolio_vol, 5)*100) + '%')
+
+####CALCULO DO RISCO DIVERSIFICAVEL DE UM PORTIFOLIO
+
+PETR3_var_a = sec_returns['PETR3.SA'].var() * 250
+PETR3_var_a
+
+MGLU3_var_a = sec_returns['MGLU3.SA'].var() * 250
+MGLU3_var_a
+
+PRIO3_var_a = sec_returns ['PRIO3.SA'].var() * 250
+PRIO3_var_a
+
+ITUB3_var_a = sec_returns ['ITUB3.SA'].var() * 250
+ITUB3_var_a
+
+dr = pfolio_var - (pesos[0] ** 2 * PETR3_var_a)- (pesos[0] ** 2 * MGLU3_var_a) \
+- (pesos[0] ** 2 * PRIO3_var_a) - (pesos[0] ** 2 * ITUB3_var_a)
+dr
+
+print (str(round(dr*100,3)) + '%')
+
+n_dr_1 = pfolio_var - dr
+n_dr_1
