@@ -1,0 +1,91 @@
+from pandas.core.frame import DataFrame
+import yfinance as yf
+yf.pdr_override()
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import pandas_datareader.data as web
+import seaborn as sns
+
+
+tickers = ['ALSO3.SA', 'BRML3.SA', 'VIIA3.SA', 'GUAR3.SA', 'BRPR3.SA']
+periodo = '1y'
+
+#tickers = []
+#periodo = input('Qual periodo deseja analisar? ')
+
+#while True:
+#    acao = input('Digite aqui uma ação: ')
+#    tickers.append(acao)
+#    if len(tickers) >= 4:
+#        break
+
+mydata = pd.DataFrame()
+for t in tickers:
+    mydata[t] = web.get_data_yahoo(t, period=periodo)['Adj Close']
+    
+ibov = web.get_data_yahoo('^BVSP', period=periodo)['Adj Close']
+
+returns = (mydata / mydata.shift(1))
+
+pesos = np.array([0.2,0.2,0.2,0.2,0.2])
+
+np.dot(returns, pesos)
+annual_returns = returns.mean() * 250
+
+sec_data = pd.DataFrame()
+
+for t in tickers:
+	sec_data[t]= web.get_data_yahoo(t, period=periodo)['Adj Close']
+
+sec_returns = np.log(sec_data / sec_data.shift(1))
+
+print()
+print('MATRIZ DE COVARIÂNCIA')
+cov_matrix = sec_returns.cov() * 250
+print(cov_matrix)
+
+print()
+
+print('MATRIZ DE CORRELAÇÃO')
+corr_matrix = sec_returns.corr()
+print(corr_matrix)
+sns.heatmap(corr_matrix)
+
+
+print()
+
+pfolio_var = np.dot(pesos.T, np.dot(sec_returns.cov()*250, pesos))
+print(f'A variância da carteira é de {pfolio_var}')
+
+print()
+
+pfolio_vol = (np.dot(pesos.T, np.dot(sec_returns.cov()*250, pesos))) **0.5
+print(f'A volatidade da carteira é de {pfolio_vol}')
+
+print()
+
+normalizado = (mydata / mydata.iloc[0]) - 1
+
+ibov1 = ibov.iloc[0]
+ibov_normalizado = ibov/ibov1 - 1
+
+
+mydata.plot(figsize=(15,6))
+plt.show()
+normalizado.plot(figsize=(15,6))
+plt.axhline(y=0)
+plt.grid()
+plt.show()
+
+
+normalizado['saldo'] = normalizado.sum(axis=1)
+cres_carteira = normalizado / 5 
+
+
+cres_carteira['saldo'].plot(figsize=(15,6), label = 'Minha carteira')
+ibov_normalizado.plot(label = 'IBOV')
+plt.legend()
+plt.axhline(y=0)
+plt.grid()
+plt.show()
