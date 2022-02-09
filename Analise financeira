@@ -8,17 +8,17 @@ import pandas_datareader.data as web
 import seaborn as sns
 
 
-tickers = ['ALSO3.SA', 'BRML3.SA', 'VIIA3.SA', 'GUAR3.SA', 'BRPR3.SA']
-periodo = '1y'
+#tickers = ['ALSO3.SA', 'BRML3.SA', 'VIIA3.SA', 'GUAR3.SA', 'BRPR3.SA']
+#periodo = '1y'
 
-#tickers = []
-#periodo = input('Qual periodo deseja analisar? ')
+tickers = []
+periodo = input('Qual periodo deseja analisar? ')
 
-#while True:
-#    acao = input('Digite aqui uma ação: ')
-#    tickers.append(acao)
-#    if len(tickers) >= 4:
-#        break
+while True:
+    acao = input('Digite aqui uma ação: ')
+    tickers.append(acao)
+    if len(tickers) >= 4:
+        break
 
 mydata = pd.DataFrame()
 for t in tickers:
